@@ -42,12 +42,16 @@ final_image = np.sum(image_concat, axis=0)
 # Checking the image histogram to decide what limits we should put on the colour scaling
 plt.figure()
 image_hist = plt.hist(final_image.flatten(), bins='auto')
+plt.xlabel("Pixel Intensity")
+plt.ylabel("Number of Pixels")
 
+# Displaying the image with little regard for scaling of colours
 sketchy_image = plt.figure()
 sketchy_image_ax= sketchy_image.gca()
 sketchy_image_ax.imshow(final_image, cmap='gray')
 sketchy_image_ax.set_title("Image without colour scale limits")
 
+# Now considering the appropriate range where most pixel intensities lie
 proper_image = plt.figure()
 proper_image_ax = proper_image.gca()
 proper_image_ax.imshow(final_image, cmap='gray', vmin=2200, vmax=2800)
