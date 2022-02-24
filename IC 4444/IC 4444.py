@@ -1,26 +1,27 @@
+'''
+This file is used for analysing the OSU images in the OSU file.
+The files are not kept in the Github repository but are stored locally,
+and are available via Sharepoint download.
+'''
+
 from astropy.io import fits
 from astropy.visualization import astropy_mpl_style
 import numpy as np
 import matplotlib.pyplot as plt
 plt.style.use(astropy_mpl_style)
 
-# Creating a list of colours to loop through, then importing each FITS file into
-# Python. The data is then retrieved and stored in image_concat, before being
-# sumperimposed onto each other to form the full_image
-full_image = fits.getdata("ic4444b.fits")
+full_image = fits.getdata("OSU\data\survey\ByFilter\B_band\ic4444b.fits")
+log_image= np.log10(full_image)
 
-# Establishing an arbirarily chosen intensity threshold  to create two images
-# one of the spiral arms and the other of the central bulge
+histogram_log = plt.hist(log_image.ravel(), bins='auto')
+largest_intensity = np.max(histogram_log[0])
+max_brightness = histogram_log[1][np.where(histogram_log[0] == largest_intensity)]
 
-lower_arm_threshold = 0.4
-upper_arm_threshold = 0.6
-
-plt.figure()
-histogram = plt.hist(full_image.ravel(), bins=100)
-
-plt.figure()
-plt.imshow(full_image, cmap='gray', vmin=20, vmax = 75)
-plt.title("IC 4444")
-plt.colorbar()
-plt.grid(None)
+fig, ax = plt.subplots(1,2)
+pos_im = ax[0].imshow(full_image, cmap='gray', vmin=10, vmax=50)
+full_im = ax[1].imshow(log_image, cmap='gray', vmin=max_brightness, vmax=2.5)
+ax[0].set_title("IC 4444")
+ax[0].grid(False)
+ax[1].grid(False)
+ax[1].set_title("IC 4444 (rescaled)")
 plt.show()
