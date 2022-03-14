@@ -5,8 +5,17 @@ https://www.geeksforgeeks.org/drawing-with-mouse-on-images-using-python-opencv/
 
 import cv2
 import matplotlib.pyplot as plt
+from astropy.io import fits
+import numpy as np
   
 img = cv2.imread("gull.jpg")
+gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+full_image = fits.getdata("OSU\data\survey\ByFilter\B_band\\ngc5054b.fits")
+vmin, vmax = 1.3, 2.6
+
+log_image = np.log10(full_image)
+
   
 # variables
 ix = -1
@@ -34,11 +43,11 @@ def draw_rectangle_with_drag(event, x, y, flags, param):
         drawing = False
           
 cv2.namedWindow(winname = "Title of Popup Window")
-cv2.setMouseCallback("Title of Popup Window", 
-                     draw_rectangle_with_drag)
+cv2.setMouseCallback("Title of Popup Window", draw_rectangle_with_drag)
   
 while True:
     cv2.imshow("Title of Popup Window", img)
+    # plt.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
       
     if cv2.waitKey(10) == 27:
         break

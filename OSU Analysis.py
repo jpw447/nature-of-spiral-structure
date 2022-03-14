@@ -2,10 +2,11 @@ from astropy.io import fits
 from astropy.visualization import astropy_mpl_style
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
 plt.style.use(astropy_mpl_style)
 
 # Loads the image and rescales the data using base 10 logarithms
-full_image = fits.getdata("OSU\data\survey\ByFilter\B_band\\ngc4995b.fits")
+full_image = fits.getdata("OSU\data\survey\ByFilter\B_band\\ngc5054b.fits")
 log_image = np.log10(full_image)
 
 # Creates an histogram plot and finds the brightness where most pixels lie (histogram peak)
@@ -22,13 +23,6 @@ ax_hist.set_xlim(0, max_count)
 # Grabbing the top (threshold*100)% most bright pixels
 threshold = 0.9
 bright_image = np.where(log_image > threshold*max_brightness, log_image, 0)
-
-# Displaying the image
-fig_image = plt.figure()
-ax_image = fig_image.gca()
-full_im = ax_image.imshow(log_image, cmap='gray', vmin=max_brightness, vmax=2.6)
-ax_image.set_title("NGC 4995 (rescaled)")
-plt.grid(False)
 
 # Histogram of bright image
 fig_bright_hist = plt.figure()
