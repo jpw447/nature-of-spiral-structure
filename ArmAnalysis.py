@@ -2,8 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 
-plt.tick_params(axis='both', which='both', bottom=False, top=False, labelbottom=False)
-
 def histogram_limiter(percentage, count, intensity):
     '''
     Finds the maximum brightness in the histogram, max_brightness.
@@ -28,16 +26,13 @@ def image_display(path, galaxy_name, colour_band):
     '''
     This first name-grabbing section will later need updating to filtering through
     a list of filenames provided to it for each colour band
-    '''
-    name = input("Type the galaxy name in the correct file format: ")
+    ''' 
     
-    try:
-        full_image = fits.getdata(str(path)+"\\{}.fits".format(name))
-    except FileNotFoundError:
-        print("ERROR: File not found. Check the path provided and ensure it doesn't end in '\\\\', and\
-              that you've provided the correct file name.")
-        return
-    
+    # name = input("Type the galaxy name in the correct file format: ")
+    name = galaxy_name
+    print("NAME IS "+name)
+    print("SEARCHING FOR ->>> "+str(path)+"\\{}.fits".format(name))
+    full_image = fits.getdata(str(path)+"\\{}.fits".format(name))    
     log_image = np.log10(full_image)
     
     # Creates an histogram plot and finds the brightness where most pixels lie (histogram peak)
@@ -45,15 +40,20 @@ def image_display(path, galaxy_name, colour_band):
     ax_hist = fig_hist.gca()
     pixel_count, pixel_intensity, _ = plt.hist(log_image.flatten(), bins='auto')
     ax_hist.set_title("Image Histogram")
+    plt.close()
     
     percentage = 0.005
     vmin, vmax = histogram_limiter(percentage, pixel_count, pixel_intensity)
     
     # The image with a calculated, restricted brightness range
-    fig_image = plt.figure()
+    fig_image = plt.figure(figsize=(10,10))
     ax_image = fig_image.gca()
     ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
-    ax_image.set_title("{} in {}-Band".format(galaxy_name, colour_band))
+    ax_image.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False) 
+    ax_image.set_title("{} in {}-Band".format(galaxy_name, colour_band), fontsize=24)
     plt.grid(False)
     plt.show()
+    plt.draw()
+    
+    input("Press enter to continue...")
 
