@@ -50,9 +50,13 @@ def image_display(path, save_path, galaxy_name, colour_band):
     # The image with a calculated, restricted brightness range
     fig_image = plt.figure(figsize=(10,10))
     ax_image = fig_image.gca()
+    
+    # Replace log_image with deprojected image, after including deprojection function
     ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
+    
     ax_image.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False) 
     ax_image.set_title("{} in {}-Band".format(galaxy_name, colour_band), fontsize=24)
     plt.grid(False)
     plt.savefig(save_path+"\\{}{}.jpg".format(name,colour_band))
-    plt.close()
+    
+    input("Press enter to continue...")
