@@ -8,6 +8,7 @@ if __name__ == "__main__":
     computer_path = "C:\\Users\\Joe\\Documents\\Uni\\Year 3\\Nature of Spiral Structure"
     image_path = computer_path + "\\OSU\\data\\survey\ByFilter\\{}_band".format(band)
     list_path = computer_path + "\\Galaxy Lists\\{}-band_galaxies.txt".format(band)
+    save_path = computer_path + "\\Images"
     
     # Grabbing the list of galaxy names
     with open(list_path, 'r') as file:
@@ -17,4 +18,4 @@ if __name__ == "__main__":
     
     # Cycling through all the galaxies in a given band to look at
     for galaxy_name in file_list:
-        aa.image_display(image_path, galaxy_name, band)
+        aa.image_display(image_path, save_path, galaxy_name, band)
