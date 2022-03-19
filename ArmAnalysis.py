@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
 from astropy.io import fits
 
 def histogram_limiter(percentage, count, intensity):
@@ -17,6 +18,38 @@ def histogram_limiter(percentage, count, intensity):
     vmin, vmax = intensity[lower_bound], intensity[upper_bound]
     
     return vmin, vmax
+
+def crop(image):
+    '''
+    This function crops the deproejcted image removing any black space.
+    Please delete if its usage is not needed.
+    '''
+    y_nonzero, x_nonzero = np.nonzero(image)
+    return image[np.min(y_nonzero):np.max(y_nonzero), np.min(x_nonzero):np.max(x_nonzero)]
+
+def deprojection(image):
+    '''
+    This function deprojects the image using suitable input from the user.
+    '''
+    try:
+        v_strch = float(input("Vertical stretch amount: "))
+    except:
+        v_strch = 1.0
+    try:
+        h_strch = float(input("Horizontal stretch amount: "))
+    except:
+        h_strch = 1.0
+
+    img = image[0].data
+    image = np.array(img, dtype = np.uint8) #Converting float32 to uint8
+    resized_image = cv2.resize(image, (round(np.shape(image)[1]*h_strch), round(np.shape(image)[0]*v_strch))) 
+    resized_image = crop(resized_image)
+
+    #This plots a circle for help with stretching (408 and 208 should be replaces with centre)
+    #cv2.circle(resized_image,(round(408*h_strch), round(208*v_strch)), 150, (0,255,0), 2)
+
+    return resized_image
+
 
 def image_display(path, save_path, galaxy_name, colour_band):
     '''
@@ -51,8 +84,9 @@ def image_display(path, save_path, galaxy_name, colour_band):
     fig_image = plt.figure(figsize=(10,10))
     ax_image = fig_image.gca()
     
-    # Replace log_image with deprojected image, after including deprojection function
-    ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
+    # Replaces log_image with deprojected image
+    depro_image = deprojection(log_image)
+    ax_image.imshow(depro_image, cmap='gray', vmin=vmin, vmax=vmax)
     
     ax_image.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False) 
     ax_image.set_title("{} in {}-Band".format(galaxy_name, colour_band), fontsize=24)
