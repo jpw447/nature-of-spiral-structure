@@ -53,9 +53,9 @@ def deprojection(image):
     except:
         h_strch = 1.0
 
-    img = image[0].data
-    image = np.array(img, dtype = np.uint8) #Converting float32 to uint8
-    resized_image = cv2.resize(image, (round(np.shape(image)[1]*h_strch), round(np.shape(image)[0]*v_strch))) 
+    img = image.data
+    u_img = np.array(img, dtype = np.uint8) #Converting float32 to uint8
+    resized_image = cv2.resize(u_img, (round(np.shape(u_img)[1]*h_strch), round(np.shape(u_img)[0]*v_strch))) 
     resized_image = crop(resized_image)
 
     #This plots a circle for help with stretching (408 and 208 should be replaces with centre)
