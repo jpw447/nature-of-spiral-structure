@@ -6,11 +6,24 @@ from astropy.io import fits
 def histogram_limiter(percentage, count, intensity):
     '''
     Finds the maximum brightness in the histogram, max_brightness.
-    intensity = x-values
-    count = y-values
     Works by finding the histogram indices where the brightness exceeds the 
     specified threshold. The edge idices are then returned to give an
     appropriate brightness range for image display.
+        
+    Parameters
+    ----------
+    percentage : float
+        Decimal form of percentage above which brightness is retained.
+    count : numpy array
+        The number of pixels for a given brightness.
+    intensity : numpy array
+        The range of brightnesses within the fits image
+    Returns
+    -------
+    vmin : float
+        Minimum brightness for jpg display.
+    vmax : float
+        As above but maximum brightness.
     '''
     threshold = percentage*np.max(count)
     bright_indices = np.where(count > threshold)[0]
@@ -50,47 +63,127 @@ def deprojection(image):
 
     return resized_image
 
+def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
+    log_image, vmin, vmax = image_parameters(path, galaxy_name, percentage)
+    
+    # Displaying initial image
+    fig_image = plt.figure(figsize=(10,10))
+    ax_image = fig_image.gca()
+    ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
+    ax_image.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False)
+    
+    while True:
+        try:
+            arm_count = int(input("How many spiral arms are in the image? "))
+            break
+        except:
+            print("Invalid input, please try again.")
+    
+    return
 
-def image_display(path, save_path, galaxy_name, colour_band):
+def image_parameters(path, galaxy_name, percentage):
     '''
     Loads a FITS file image and rescales it for visualisation using base 10 logarithm.
-    Plots using plt.imshow from matplotlib
-    '''
-    '''
-    This first name-grabbing section will later need updating to filtering through
-    a list of filenames provided to it for each colour band
-    ''' 
+    Calculates the brightness maximum/minimum with which to display the image
+    and returns these as well as the image.
     
-    # name = input("Type the galaxy name in the correct file format: ")
-    name = galaxy_name
-    print("NAME IS "+name)
-    print("SEARCHING FOR ->>> "+str(path)+"\\{}.fits".format(name))
-    full_image = fits.getdata(str(path)+"\\{}.fits".format(name))    
+    Parameters
+    ----------
+    path : string
+        Absolute path where the .fits files are stored. Must not end with \\.
+    galaxy_name : string
+        The name of the file without the extension, e.g. 'ngc5054b'.
+    percentage : float
+        Decimal form of percentage above which brightness is retained. Default is 0.5%.
+
+    Returns
+    -------
+    log_image : numpy array
+        2D array containing the brightness information of the image for display
+        using plt.imshow
+    vmin : float
+        Minimum brightness for jpg display.
+    vmax : float
+        As above but maximum brightness.
+    '''
+    # Retrieving .fits data and replacing infinities with NaN
+    full_image = fits.getdata(str(path)+"\\{}.fits".format(galaxy_name))    
     log_image = np.log10(full_image)
     flattened_log = log_image.flatten()
     flattened_log = np.where(abs(flattened_log) == np.inf, np.nan, flattened_log)
     
     # Creates an histogram plot and finds the brightness where most pixels lie (histogram peak)
+    # pyplot automatically shows the histogram, which we don't need. Numpy histogram
+    # might solve this issue
     fig_hist = plt.figure()
     ax_hist = fig_hist.gca()
     pixel_count, pixel_intensity, _ = plt.hist(flattened_log, bins='auto')
     ax_hist.set_title("Image Histogram")
-    plt.close()
+    plt.close() 
     
-    percentage = 0.005
+    # Giving threshold percentage in decimal form and calculates brightness
+    # interval over which to display the image
     vmin, vmax = histogram_limiter(percentage, pixel_count, pixel_intensity)
     
-    # The image with a calculated, restricted brightness range
+    return log_image, vmin, vmax
+
+def image_display(path, save_path, galaxy_name, colour_band, percentage=0.005):
+    '''
+    Loads a FITS file image and rescales it for visualisation using base 10 logarithm.
+    Plots using plt.imshow from matplotlib and then saves the figure to the
+    specified path.
+    This function is for when you want to look at the image only, and perform
+    no analysis or save it.
+    
+    Parameters
+    ----------
+    path : string
+        Absolute path where the .fits files are stored. Must not end with \\.
+    save_path : string
+        Absolute path where to save the jpg images..
+    galaxy_name : TYPE
+        The name of the file without the extension, e.g. 'ngc5054b'.
+    colour_band : float
+        Decimal form of percentage above which brightness is retained.
+    percentage : float
+        Decimal form of percentage above which brightness is retained. Default is 0.5%.
+
+    Returns
+    -------
+    None.
+        
+    Example
+    -------
+         path = "C:\\Users\\Admin\\Documents\\Galaxies"
+         save_path = "C:\\Users\\Admin\\Documents\\Galaxy Images"
+         galaxy_name = "ngc5054b"
+         colour_band = b
+         This will grab ngc5054b.fits from the path directory, adjust the
+         brightness interval over which to display it according to the 
+         brightness histogram, and save a jpg to the save_path directory as
+         "ngc5054bB.jpg".
+    '''
+    '''
+    This first name-grabbing section will later need updating to filtering through
+    a list of filenames provided to it for each colour band
+    ''' 
+    # Grabs logarithmic image and minimum and maximum brightness for image display
+    log_image, vmin, vmax = image_parameters(path, galaxy_name, percentage)
+    
     fig_image = plt.figure(figsize=(10,10))
     ax_image = fig_image.gca()
     
-    # Replaces log_image with deprojected image
-    depro_image = deprojection(log_image)
-    ax_image.imshow(depro_image, cmap='gray', vmin=vmin, vmax=vmax)
+    '''
+    TEMPORARY: displaying the log image instead of deprojected image
+    '''
+    # Replaces log_image with deprojected image and displays it
+    # depro_image = deprojection(log_image)
+    # ax_image.imshow(depro_image, cmap='gray', vmin=vmin, vmax=vmax)
+    ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
     
+    # Removing labels for a clean display, then saving the image
     ax_image.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False) 
     ax_image.set_title("{} in {}-Band".format(galaxy_name, colour_band), fontsize=24)
     plt.grid(False)
-    plt.savefig(save_path+"\\{}{}.jpg".format(name,colour_band))
-    
-    input("Press enter to continue...")
+    # plt.savefig(save_path+"\\{}{}.jpg".format(galaxy_name,colour_band))
+    return
