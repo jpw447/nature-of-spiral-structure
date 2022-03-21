@@ -41,7 +41,7 @@ def deprojection(image):
         h_strch = 1.0
 
     img = image.data
-    u_img = np.array(img, dtype = np.uint8) #Converting float32 to uint8
+    u_img = np.array(img)
     resized_image = cv2.resize(u_img, (round(np.shape(u_img)[1]*h_strch), round(np.shape(u_img)[0]*v_strch))) 
     resized_image = crop(resized_image)
 
