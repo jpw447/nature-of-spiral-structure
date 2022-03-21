@@ -63,14 +63,18 @@ def deprojection(image):
 
     return resized_image
 
+
+        
 def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
     log_image, vmin, vmax = image_parameters(path, galaxy_name, percentage)
+    # Save the FITS display and then grab it immediately after to get a jpeg version
     
     # Displaying initial image
     fig_image = plt.figure(figsize=(10,10))
     ax_image = fig_image.gca()
     ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
     ax_image.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False)
+    plt.show() # Currently waits for the rest of the function to run before displaying
     
     while True:
         try:
@@ -78,6 +82,65 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
             break
         except:
             print("Invalid input, please try again.")
+    
+    # Loading jpg image for drawing
+    jpg_image = cv2.imread("Images\\ngc5054bB.jpg")
+    
+    global ix, iy, drawing, jpeg_image
+    ix = -1
+    iy = -1
+    drawing = False
+    x_list = []
+    y_list = []
+    '''
+    CURRENT ISSUE:
+        cv2.circle(jpg_image, (x,y), radius=0, color =(0, 0, 255), thickness =80)
+
+    NameError: name 'jpg_image' is not defined
+    
+    ---
+    Not sure why, but the event isn't recognising the fact that there's an image.
+    '''
+    def drawing(event, x, y, flags, param):
+      
+        global ix, iy, drawing, jpg_image
+          
+        if event == cv2.EVENT_LBUTTONDOWN:
+            drawing = True
+            ix = x
+            iy = y            
+                  
+        elif event == cv2.EVENT_MOUSEMOVE:
+            if drawing == True:
+                cv2.circle(jpg_image, (x,y), radius=0, color =(0, 0, 255), thickness =80)
+                x_list.append(x)
+                y_list.append(y)
+          
+        elif event == cv2.EVENT_LBUTTONUP:
+            drawing = False
+    
+    cv2.namedWindow(winname = "Title of Popup Window")
+    cv2.setMouseCallback("Title of Popup Window", drawing)
+    
+    while True:
+        cv2.imshow("Title of Popup Window", jpg_image)
+          
+        if cv2.waitKey(10) == 27:
+            break
+        
+    # Creating a figure and axes to plot the drawn points. For debugging only
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.plot(x_list, y_list)
+    ax.set_title("$y$ points versus $x$ points")
+    ax.set_xlabel("$x$ point")
+    ax.set_ylabel("$y$ point")
+    plt.show()
+    
+    cv2.destroyAllWindows()
+    
+    # Make an empty array with number of elements = number of arms
+    # Each element is then given a list
     
     return
 
@@ -177,9 +240,9 @@ def image_display(path, save_path, galaxy_name, colour_band, percentage=0.005):
     TEMPORARY: displaying the log image instead of deprojected image
     '''
     # Replaces log_image with deprojected image and displays it
-    # depro_image = deprojection(log_image)
-    # ax_image.imshow(depro_image, cmap='gray', vmin=vmin, vmax=vmax)
-    ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
+    depro_image = deprojection(log_image)
+    ax_image.imshow(depro_image, cmap='gray', vmin=vmin, vmax=vmax)
+    # ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
     
     # Removing labels for a clean display, then saving the image
     ax_image.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False) 

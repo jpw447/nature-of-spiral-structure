@@ -20,12 +20,18 @@ if __name__ == "__main__":
     with open(list_path, 'r') as file:
         file_list = file.readlines()
         
+    # Calls image_display for a test
+    # aa.image_display(image_path, save_path, 'ngc5054b', band)
+        
+    # Calls arm_drawing for a test
     aa.arm_drawing(image_path, save_path, 'ngc5054b', band, percentage=0.01)
     
-    ### This block of code will cycle through every file in file_list
-    # # Removing "\n" delimiter
-    # file_list = [file[:-1] for file in file_list]
+    ### This block of code will cycle through every file in file_list using image_display
+    '''
+    # Removing "\n" delimiter
+    file_list = [file[:-1] for file in file_list]
     
-    # # Cycling through all the galaxies in a given band to look at
-    # for galaxy_name in file_list:
-    #     aa.image_display(image_path, save_path, galaxy_name, band)
+    # Cycling through all the galaxies in a given band to look at
+    for galaxy_name in file_list:
+        aa.image_display(image_path, save_path, galaxy_name, band)
+    '''
