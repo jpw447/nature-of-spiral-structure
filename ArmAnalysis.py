@@ -71,7 +71,7 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
     fig_image = plt.figure(figsize=(10,10))
     ax_image = fig_image.gca()
     ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
-    ax_image.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False)
+    # ax_image.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False)
     plt.show() # Currently waits for the rest of the function to run before displaying
     
     while True:
@@ -81,19 +81,11 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
         except:
             print("Invalid input, please try again.")
     
-    '''
-    CURRENT ISSUE:
-        cv2.circle(jpg_image, (x,y), radius=0, color =(0, 0, 255), thickness =80)
-
-    NameError: name 'jpg_image' is not defined
-    
-    ---
-    Not sure why, but the event isn't recognising the fact that there's an image.
-    '''
-  
-    # variables
+    # Drawing
     ix = -1
     iy = -1
+    x_list = []
+    y_list = []
     global drawing
     drawing = False
       
@@ -109,6 +101,8 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
         elif event == cv2.EVENT_MOUSEMOVE:
             if drawing == True:
                 cv2.circle(galaxy, (x,y), radius=0, color =(0, 0, 255), thickness =5)
+                x_list.append(x)
+                y_list.append(y)
           
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
@@ -124,21 +118,17 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
           
         if cv2.waitKey(10) == 27:
             break
-      
-    plt.plot(x_list, y_list)
-    plt.title("$y$ points versus $x$ points")
-    plt.xlabel("$x$ point")
-    plt.ylabel("$y$ point")
-    
-    cv2.destroyAllWindows()
         
-    # Creating a figure and axes to plot the drawn points. For debugging only
-    fig = plt.figure()
-    ax = fig.gca()
-    ax.plot(x_list, y_list)
-    ax.set_title("$y$ points versus $x$ points")
-    ax.set_xlabel("$x$ point")
-    ax.set_ylabel("$y$ point")
+    ymax, xmax, _ = np.shape(galaxy)
+    
+    fig_points = plt.figure(figsize=(10,10))
+    ax_points = fig_points.gca()
+    ax_points.plot(x_list, y_list)
+    ax_points.set_xlim(0, xmax)
+    ax_points.set_ylim(0,  ymax)
+    ax_points.set_title("$y$ points versus $x$ points")
+    ax_points.set_xlabel("$x$ point")
+    ax_points.set_ylabel("$y$ point")
     plt.show()
     
     cv2.destroyAllWindows()
