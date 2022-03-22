@@ -12,7 +12,6 @@ import numpy as np
 # gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 galaxy = cv2.imread("Images\\ngc5054bB.jpg")
-
   
 # variables
 ix = -1
@@ -32,7 +31,7 @@ def draw_rectangle_with_drag(event, x, y, flags, param):
               
     elif event == cv2.EVENT_MOUSEMOVE:
         if drawing == True:
-            cv2.circle(galaxy, (x,y), radius=0, color =(0, 0, 255), thickness =500)
+            cv2.circle(galaxy, (x,y), radius=0, color =(0, 0, 255), thickness =5)
             x_list.append(x)
             y_list.append(y)
       

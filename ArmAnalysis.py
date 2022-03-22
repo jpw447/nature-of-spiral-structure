@@ -16,7 +16,7 @@ def histogram_limiter(percentage, count, intensity):
         Decimal form of percentage above which brightness is retained.
     count : numpy array
         The number of pixels for a given brightness.
-    intensity : numpy array
+    intensity : numpy.ndarray
         The range of brightnesses within the fits image
     Returns
     -------
@@ -62,8 +62,6 @@ def deprojection(image):
     #cv2.circle(resized_image,(round(408*h_strch), round(208*v_strch)), 150, (0,255,0), 2)
 
     return resized_image
-
-
         
 def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
     log_image, vmin, vmax = image_parameters(path, galaxy_name, percentage)
@@ -83,15 +81,6 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
         except:
             print("Invalid input, please try again.")
     
-    # Loading jpg image for drawing
-    jpg_image = cv2.imread("Images\\ngc5054bB.jpg")
-    
-    global ix, iy, drawing, jpeg_image
-    ix = -1
-    iy = -1
-    drawing = False
-    x_list = []
-    y_list = []
     '''
     CURRENT ISSUE:
         cv2.circle(jpg_image, (x,y), radius=0, color =(0, 0, 255), thickness =80)
@@ -101,9 +90,16 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
     ---
     Not sure why, but the event isn't recognising the fact that there's an image.
     '''
-    def drawing(event, x, y, flags, param):
+  
+    # variables
+    ix = -1
+    iy = -1
+    global drawing
+    drawing = False
       
-        global ix, iy, drawing, jpg_image
+    def draw(event, x, y, flags, param):
+          
+        global ix, iy, drawing
           
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
@@ -112,21 +108,29 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
                   
         elif event == cv2.EVENT_MOUSEMOVE:
             if drawing == True:
-                cv2.circle(jpg_image, (x,y), radius=0, color =(0, 0, 255), thickness =80)
-                x_list.append(x)
-                y_list.append(y)
+                cv2.circle(galaxy, (x,y), radius=0, color =(0, 0, 255), thickness =5)
           
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
-    
-    cv2.namedWindow(winname = "Title of Popup Window")
-    cv2.setMouseCallback("Title of Popup Window", drawing)
-    
+              
+    # Loading jpg image for drawing
+    galaxy = cv2.imread("Images\\ngc5054bB.jpg")        
+    cv2.namedWindow("Image")
+    cv2.setMouseCallback("Image", draw)
+      
     while True:
-        cv2.imshow("Title of Popup Window", jpg_image)
+        cv2.imshow("Image", galaxy)
+        # plt.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
           
         if cv2.waitKey(10) == 27:
             break
+      
+    plt.plot(x_list, y_list)
+    plt.title("$y$ points versus $x$ points")
+    plt.xlabel("$x$ point")
+    plt.ylabel("$y$ point")
+    
+    cv2.destroyAllWindows()
         
     # Creating a figure and axes to plot the drawn points. For debugging only
     fig = plt.figure()
