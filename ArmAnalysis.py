@@ -63,25 +63,35 @@ def deprojection(image):
 
     return resized_image
         
+def cv2_show_image(title, image):
+    # Displaying the image until the escape key is hit
+    while True:
+        cv2.imshow(title, image)          
+        if cv2.waitKey(10) == 27:
+            break
+
 def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
     log_image, vmin, vmax = image_parameters(path, galaxy_name, percentage)
-    # Save the FITS display and then grab it immediately after to get a jpeg version
+    # Could save the FITS display and then grab it immediately after to get a jpeg version
     
     # Displaying initial image
-    fig_image = plt.figure(figsize=(10,10))
-    ax_image = fig_image.gca()
-    ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
+    # fig_image = plt.figure(figsize=(10,10))
+    # ax_image = fig_image.gca()
+    # ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
     # ax_image.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False)
-    plt.show() # Currently waits for the rest of the function to run before displaying
+    # plt.show() # Currently waits for the rest of the function to run before displaying
     
+    # Asks the user  to input number of spiral arms, with input control
     while True:
-        try:
-            arm_count = int(input("How many spiral arms are in the image? "))
-            break
-        except:
+        arm_count = int(input("How many spiral arms are in the image? "))
+        if type(arm_count) is not int:
             print("Invalid input, please try again.")
+        else:
+            break
     
-    # Drawing
+    # Function define for drawing with the mouse on the image. Has to be defined
+    # here or the code doesn't recognise the function.
+    # Initialising variables and lists
     ix = -1
     iy = -1
     x_list = []
@@ -97,6 +107,9 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
             drawing = True
             ix = x
             iy = y            
+            cv2.circle(galaxy, (x,y), radius=0, color =(0, 0, 255), thickness =5)
+            x_list.append(x)
+            y_list.append(y)
                   
         elif event == cv2.EVENT_MOUSEMOVE:
             if drawing == True:
@@ -109,28 +122,36 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
               
     # Loading jpg image for drawing
     galaxy = cv2.imread("Images\\ngc5054bB.jpg")        
-    cv2.namedWindow("Image")
-    cv2.setMouseCallback("Image", draw)
-      
-    while True:
-        cv2.imshow("Image", galaxy)
-        # plt.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
-          
-        if cv2.waitKey(10) == 27:
-            break
+    print("Please pick out the galacitc centre. Only the first pixel will be taken.")
+    window_title = "Galaxy Centre"
+    cv2.namedWindow(window_title)
+    cv2.setMouseCallback(window_title, draw)
+    
+    cv2_show_image(window_title, galaxy)
+    
+    # Grabbing centre co-ordinates and resetting lists for use
+    centre_x, centre_y = x_list[0], y_list[0]
+    print("Galactic centre was found at ("+str(centre_x)+","+str(centre_y)+")")
+    x_list, y_list = [], []
+    
+    print("Draw a spiral arm.")
+    # cv2.namedWindow("Spiral Arm")
+    # cv2.setMouseCallback("Spiral Arm", draw)
         
-    ymax, xmax, _ = np.shape(galaxy)
+    # ymax, xmax, _ = np.shape(galaxy)
     
-    fig_points = plt.figure(figsize=(10,10))
-    ax_points = fig_points.gca()
-    ax_points.plot(x_list, y_list)
-    ax_points.set_xlim(0, xmax)
-    ax_points.set_ylim(0,  ymax)
-    ax_points.set_title("$y$ points versus $x$ points")
-    ax_points.set_xlabel("$x$ point")
-    ax_points.set_ylabel("$y$ point")
-    plt.show()
+    # fig_points = plt.figure(figsize=(10,10))
+    # ax_points = fig_points.gca()
+    # ax_points.plot(x_list, y_list)
+    # ax_points.set_xlim(0, xmax)
+    # ax_points.set_ylim(0,  ymax)
+    # ax_points.set_ylim(ax_points.get_ylim()[::-1])
+    # ax_points.set_title("$y$ points versus $x$ points")
+    # ax_points.set_xlabel("$x$ point")
+    # ax_points.set_ylabel("$y$ point")
+    # plt.show()
     
+    # CLoses all Open-CV windows
     cv2.destroyAllWindows()
     
     # Make an empty array with number of elements = number of arms

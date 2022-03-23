@@ -12,6 +12,7 @@ import numpy as np
 # gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 galaxy = cv2.imread("Images\\ngc5054bB.jpg")
+ymax, xmax, _ = np.shape(galaxy)
   
 # variables
 ix = -1
@@ -37,9 +38,10 @@ def draw_rectangle_with_drag(event, x, y, flags, param):
       
     elif event == cv2.EVENT_LBUTTONUP:
         drawing = False
-          
-cv2.namedWindow(winname = "Title of Popup Window")
-cv2.setMouseCallback("Title of Popup Window", draw_rectangle_with_drag)
+
+title= "Title of Popup Window"
+cv2.namedWindow(winname = title)
+cv2.setMouseCallback(title, draw_rectangle_with_drag)
   
 while True:
     cv2.imshow("Title of Popup Window", galaxy)
@@ -48,9 +50,15 @@ while True:
     if cv2.waitKey(10) == 27:
         break
   
-plt.plot(x_list, y_list)
-plt.title("$y$ points versus $x$ points")
-plt.xlabel("$x$ point")
-plt.ylabel("$y$ point")
+# y_list = list(reversed(y_list))
+y_list = abs(ymax-y_list)
+fig = plt.figure(figsize=(8,8))
+ax = fig.gca()
+ax.plot(x_list, y_list, 'ro')
+ax.set_title("$y$ points versus $x$ points")
+ax.set_xlim(0,xmax)
+ax.set_ylim(0,ymax)
+ax.set_xlabel("$x$ point")
+ax.set_ylabel("$y$ point")
 
 cv2.destroyAllWindows()
