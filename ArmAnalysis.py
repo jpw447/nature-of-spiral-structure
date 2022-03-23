@@ -152,6 +152,28 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
         arms_y[i] = np.array(y_list)
         x_list, y_list = [], []
     
+    i = 0 # Dummy variable for testing
+    # Looping over each arm and calculating the pitch angle, converting to degrees
+    for x_vals, y_vals in zip(arms_x, arms_y):
+        x_mean = 0.5*(x_vals[1:] + x_vals[:-1])
+        y_mean = 0.5*(y_vals[1:] + y_vals[:-1])
+        
+        numerator = (x_mean - centre_x)*(x_vals[1:] - x_vals[:-1]) + (y_mean - centre_y)*(y_vals[1:] - y_vals[:-1])
+        denominator_radicand = ((x_mean - centre_x)**2 + (x_vals[1:] - x_vals[:-1])**2 ) * ((y_mean - centre_y)**2 + (y_vals[1:] - y_vals[:-1])**2)
+        
+        pitch_angle = (np.pi/2 - np.arccos(numerator/np.sqrt(denominator_radicand)) ) * 180/np.pi
+        print("Pitch angle mean: "+str(len(pitch_angle)))
+        print("Number of points along arm: "+str(len(x_vals)))
+        
+        # Dummy plot to test, only looking at one arm to prevent clogging up plot
+        if i == 0:
+            fig = plt.figure()
+            ax = fig.gca()
+            ax.plot(x_mean-centre_x, pitch_angle)
+            plt.show()
+            i += 1
+        
+        
     # Closing Open-CV windows and proceeding to analysis
     # cv2.destroyAllWindows()
     print("Drawing complete!")
