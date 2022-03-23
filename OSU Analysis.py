@@ -10,13 +10,13 @@ if __name__ == "__main__":
     band = input("Which colour band do you want to look at? ").upper()
     
     # Path strings
-    laptop_path = "C:\\Users\\joepw\\Documents\\Year 3\\Nature of Spiral Structure"
-    # computer_path = "C:\\Users\\Joe\\Documents\\Uni\\Year 3\\Nature of Spiral Structure"
-    image_path = laptop_path + "\\OSU\\data\\survey\ByFilter\\{}_band".format(band)
-    list_path = laptop_path + "\\Galaxy Lists\\{}-band_galaxies.txt".format(band)
-    save_path = laptop_path + "\\Images"
+    # laptop_path = "C:\\Users\\joepw\\Documents\\Year 3\\Nature of Spiral Structure"
+    computer_path = "C:\\Users\\Joe\\Documents\\Uni\\Year 3\\Nature of Spiral Structure"
+    image_path = computer_path + "\\OSU\\data\\survey\ByFilter\\{}_band".format(band)
+    list_path = computer_path + "\\Galaxy Lists\\{}-band_galaxies.txt".format(band)
+    save_path = computer_path + "\\Images"
     
-    # Grabbing the list of galaxy names and storing them
+    # Grabbing the list of galaxy na6mes and storing them
     with open(list_path, 'r') as file:
         file_list = file.readlines()
         
