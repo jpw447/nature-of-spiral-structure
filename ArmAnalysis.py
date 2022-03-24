@@ -131,7 +131,7 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
             drawing = False
               
     # Loading jpg image for picking out galaxy centre
-    galaxy = cv2.imread("Images\\ngc5054bB.jpg")        
+    galaxy = cv2.imread("Images\\ngc5247bB.jpg")        
     print("Please pick out the galacitc centre. Only the first pixel will be taken.\nPress escape when you are done.\n")
     window_title = "Galaxy"
     cv2.namedWindow(window_title)
@@ -166,12 +166,12 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
         print("Number of points along arm: "+str(len(x_vals)))
         
         # Dummy plot to test, only looking at one arm to prevent clogging up plot
-        if i == 0:
-            fig = plt.figure()
-            ax = fig.gca()
-            ax.plot(x_mean-centre_x, pitch_angle)
-            plt.show()
-            i += 1
+        # if i == 0:
+        fig = plt.figure()
+        ax = fig.gca()
+        ax.plot(x_mean-centre_x, pitch_angle)
+        plt.show()
+            # i += 1
         
         
     # Closing Open-CV windows and proceeding to analysis

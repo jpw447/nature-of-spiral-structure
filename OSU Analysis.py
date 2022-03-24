@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # aa.image_display(image_path, save_path, 'ngc5054b', band)
         
     # Calls arm_drawing for a test
-    aa.arm_drawing(image_path, save_path, 'ngc5054b', band, percentage=0.01)
+    aa.arm_drawing(image_path, save_path, 'ngc5247b', band, percentage=0.01)
     
     ### This block of code will cycle through every file in file_list using image_display
     '''
@@ -35,3 +35,4 @@ if __name__ == "__main__":
     for galaxy_name in file_list:
         aa.image_display(image_path, save_path, galaxy_name, band)
     '''
+    
