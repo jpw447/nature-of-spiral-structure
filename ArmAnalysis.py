@@ -155,23 +155,37 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
     i = 0 # Dummy variable for testing
     # Looping over each arm and calculating the pitch angle, converting to degrees
     for x_vals, y_vals in zip(arms_x, arms_y):
+        i += 1
+        # Mean between each pair of values
         x_mean = 0.5*(x_vals[1:] + x_vals[:-1])
         y_mean = 0.5*(y_vals[1:] + y_vals[:-1])
         
-        numerator = (x_mean - centre_x)*(x_vals[1:] - x_vals[:-1]) + (y_mean - centre_y)*(y_vals[1:] - y_vals[:-1])
-        denominator_radicand = ((x_mean - centre_x)**2 + (x_vals[1:] - x_vals[:-1])**2 ) * ((y_mean - centre_y)**2 + (y_vals[1:] - y_vals[:-1])**2)
+        # Projected side of triangle
+        x_prime = centre_x + (x_vals[1:] - x_vals[:-1])
+        y_prime = centre_y + (y_vals[1:] - y_vals[:-1])
         
-        pitch_angle = (np.pi/2 - np.arccos(numerator/np.sqrt(denominator_radicand)) ) * 180/np.pi
-        print("Pitch angle mean: "+str(len(pitch_angle)))
+        # Lengths of each side of the triangle
+        r1 = np.sqrt((centre_x - x_prime)**2 + (centre_y - y_prime)**2)
+        r2 = np.sqrt((centre_x - x_mean)**2 + (centre_y - y_mean)**2)
+        r3 = np.sqrt((x_mean - x_prime)**2 + (y_mean - y_prime)**2)
+        
+        pitch_angle = 90 - np.arccos((r1**2 + r2**2 - r3**2)/(2*r1*r2)) * 180/np.pi
+        
+        # Error estimate on mean
+        N = len(pitch_angle)
+        error = np.std(pitch_angle)/np.sqrt(N)
+        
+        print("Pitch angle mean: "+str(N)+" ± "+str(error))
         print("Number of points along arm: "+str(len(x_vals)))
         
-        # Dummy plot to test, only looking at one arm to prevent clogging up plot
-        # if i == 0:
+        # Dummy plot to test
         fig = plt.figure()
         ax = fig.gca()
-        ax.plot(x_mean-centre_x, pitch_angle)
+        ax.plot(np.sqrt((x_mean-centre_x)**2 + (y_mean-centre_y)**2), abs(pitch_angle), 'rx')
+        ax.set_title("Arm "+str(i))
+        ax.set_xlabel("Radius")
+        ax.set_ylabel("Pitch Angle (°)")
         plt.show()
-            # i += 1
         
         
     # Closing Open-CV windows and proceeding to analysis
