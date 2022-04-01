@@ -19,10 +19,10 @@ if __name__ == "__main__":
     # Grabbing the list of galaxy na6mes and storing them
     with open(list_path, 'r') as file:
         file_list = file.readlines()
-        
+    
     # Calls image_display for a test
     # aa.image_display(image_path, save_path, 'ngc5054b', band)
-        
+    
     # Calls arm_drawing for a test
     aa.arm_drawing(image_path, save_path, 'ngc5247b', band, percentage=0.01)
     
@@ -33,6 +33,5 @@ if __name__ == "__main__":
     
     # Cycling through all the galaxies in a given band to look at
     for galaxy_name in file_list:
-        aa.image_display(image_path, save_path, galaxy_name, band)
+    aa.image_display(image_path, save_path, galaxy_name, band)
     '''
-    

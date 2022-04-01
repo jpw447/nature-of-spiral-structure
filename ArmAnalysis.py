@@ -170,13 +170,7 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
         r3 = np.sqrt((x_mean - x_prime)**2 + (y_mean - y_prime)**2)
         
         pitch_angle = 90 - np.arccos((r1**2 + r2**2 - r3**2)/(2*r1*r2)) * 180/np.pi
-        
-        # Error estimate on mean
-        N = len(pitch_angle)
-        error = np.std(pitch_angle)/np.sqrt(N)
-        
-        print("Pitch angle mean: "+str(N)+" ± "+str(error))
-        print("Number of points along arm: "+str(len(x_vals)))
+        print("Max pitch angle is "+str(np.nanmax(pitch_angle)))
         
         # Dummy plot to test
         fig = plt.figure()

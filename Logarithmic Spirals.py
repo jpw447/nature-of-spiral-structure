@@ -5,8 +5,16 @@ import matplotlib.pyplot as plt
 degrees = 65
 a = 1
 b = 1/np.tan(degrees*np.pi/180)
-theta = np.linspace(0, 2*np.pi, 1000)
-r = a*np.exp(b*theta)
+N = 1000
+# Logarithmic Spiral
+theta = np.linspace(0, 2*np.pi, N)
+# r = a*np.exp(b*theta)
+
+# Flat line
+r = np.zeros(N) + 0.1
+
+# Origin
+centre_x, centre_y = 0,0
 
 # Polar plot
 fig_polar = plt.figure()
@@ -15,8 +23,8 @@ ax_polar.plot(theta,r)
 ax_polar.set_title("Logarithmic spiral, a="+str(a)+", b="+str(b)+" (Polar)")
 
 # Cartesian plot
-x_vals = r*np.cos(theta) + 300
-y_vals = r*np.sin(theta) + 400
+x_vals = r*np.cos(theta) + centre_x
+y_vals = r*np.sin(theta) + centre_y
 
 fig_cart = plt.figure()
 ax_cart = fig_cart.gca()
@@ -28,7 +36,6 @@ ax_cart.set_ylabel("$y$")
 ax_cart.set_title("Logarithmic spiral, a="+str(a)+", b="+str(b)+" (Cartesian)")
 
 # Pitch angle calculation
-centre_x, centre_y = 300, 400
 x_mean = 0.5*(x_vals[1:] + x_vals[:-1])
 y_mean = 0.5*(y_vals[1:] + y_vals[:-1])
 rbar = np.sqrt((x_mean-centre_x)**2 + (y_mean-centre_y)**2)
@@ -53,6 +60,8 @@ r1 = np.sqrt((centre_x - x_prime)**2 + (centre_y - y_prime)**2)
 r2 = np.sqrt((centre_x - x_mean)**2 + (centre_y - y_mean)**2)
 r3 = np.sqrt((x_mean - x_prime)**2 + (y_mean - y_prime)**2)
 
+argument = (r1**2 + r2**2 - r3**2)/(2*r1*r2)
+
 phi = 90 - np.arccos((r1**2 + r2**2 - r3**2)/(2*r1*r2)) * 180/np.pi
 
 expected_angle = (np.pi/2 - np.arctan(1/b)) * 180/np.pi
@@ -60,7 +69,7 @@ expected_angle = (np.pi/2 - np.arctan(1/b)) * 180/np.pi
 fig_pa = plt.figure()
 ax_pa = fig_pa.gca()
 ax_pa.plot(rbar, phi, label="Calculated pitch angle")
-ax_pa.hlines(expected_angle, 0, np.max(rbar), 'g', label="Expected pitch angle")
+# ax_pa.hlines(expected_angle, 0, np.max(rbar), 'g', label="Expected pitch angle")
 ax_pa.set_title("Pitch Angle versus $\overline{r}$")
 ax_pa.set_xlabel("$\overline{r}$")
 ax_pa.set_ylabel("Pitch Angle")
