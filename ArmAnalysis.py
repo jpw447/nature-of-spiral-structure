@@ -131,7 +131,7 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
             drawing = False
               
     # Loading jpg image for picking out galaxy centre
-    galaxy = cv2.imread("Images\\ngc5247bB.jpg")        
+    galaxy = cv2.imread("Images\\Pure Logairthmic Spiral.jpg")        
     print("Please pick out the galacitc centre. Only the first pixel will be taken.\nPress escape when you are done.\n")
     window_title = "Galaxy"
     cv2.namedWindow(window_title)
@@ -180,7 +180,6 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
         ax.set_xlabel("Radius")
         ax.set_ylabel("Pitch Angle (°)")
         plt.show()
-        
         
     # Closing Open-CV windows and proceeding to analysis
     # cv2.destroyAllWindows()

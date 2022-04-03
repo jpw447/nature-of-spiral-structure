@@ -49,9 +49,7 @@ while True:
       
     if cv2.waitKey(10) == 27:
         break
-  
-# y_list = list(reversed(y_list))
-y_list = abs(ymax-y_list)
+
 fig = plt.figure(figsize=(8,8))
 ax = fig.gca()
 ax.plot(x_list, y_list, 'ro')
