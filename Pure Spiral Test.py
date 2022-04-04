@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import scipy.signal as sc
 
 def cv2_show_image(title, image):
     '''
@@ -101,10 +102,26 @@ if __name__ == "__main__":
         # Reflection of y-values
         y_list = -y_list
         
-        r_test = np.sqrt(x_list*x_list + y_list*y_list)
+        # Filtering data of noise and picking every 10th point for analysis
+        x_list = sc.savgol_filter(x_list, 53, 3)[::10]
+        y_list = sc.savgol_filter(y_list, 53, 3)[::10]
+        
+        x_vals, y_vals = x_list, y_list
+        
+        x_mean = 0.5*(x_vals[1:] + x_vals[:-1])
+        y_mean = 0.5*(y_vals[1:] + y_vals[:-1])
+        r_test = np.sqrt(x_mean*x_mean + y_mean*y_mean)
+        x_prime = centre_x_test + (x_vals[1:] - x_vals[:-1])
+        y_prime = centre_y_test + (y_vals[1:] - y_vals[:-1])
+        r1 = np.sqrt((centre_x_test - x_prime)**2 + (centre_y_test - y_prime)**2)
+        r2 = np.sqrt((centre_x_test - x_mean)**2 + (centre_y_test - y_mean)**2)
+        r3 = np.sqrt((x_mean - x_prime)**2 + (y_mean - y_prime)**2)
+        
+        argument = (r1**2 + r2**2 - r3**2)/(2*r1*r2)
+        pitch_angle = 90 - np.arccos((r1**2 + r2**2 - r3**2)/(2*r1*r2)) * 180/np.pi
         
         ###### Pure Spiral Test only section ######
-        ax_checker.plot(r_test)
+        ax_checker.plot(r_test, pitch_angle)
         ax_checker.axis('equal')
         ax_checker.set_xlabel("Index")
         ax_checker.set_ylabel("$r$")
