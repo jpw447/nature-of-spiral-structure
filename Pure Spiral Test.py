@@ -101,51 +101,17 @@ if __name__ == "__main__":
         # Reflection of y-values
         y_list = -y_list
         
-        
+        r_test = np.sqrt(x_list*x_list + y_list*y_list)
         
         ###### Pure Spiral Test only section ######
-        ax_checker.plot(r_test, pitch_angle_test)
+        ax_checker.plot(r_test)
         ax_checker.axis('equal')
-        ax_checker.set_xlabel("$x$")
-        ax_checker.set_ylabel("$y$")
-        ax_checker.set_title("$y$ versus $x$ values for drawing", 'ro')
+        ax_checker.set_xlabel("Index")
+        ax_checker.set_ylabel("$r$")
+        ax_checker.set_title("Radius $r$ as a function of array index")
         #####################
         
         x_list, y_list = [], []
-            
-    i = 0 # Dummy variable for testing
-    # Looping over each arm and calculating the pitch angle, converting to degrees
-    for x_vals_test, y_vals_test in zip(arms_x, arms_y):
-        i += 1
-        
-        x_vals_test -= centre_x_test
-        y_vals_test -= centre_y_test
-        y_vals_test = -y_vals_test
-        
-        # Mean between each pair of values
-        x_mean_test = 0.5*(x_vals_test[1:] + x_vals_test[:-1])
-        y_mean_test = 0.5*(y_vals_test[1:] + y_vals_test[:-1])
-        
-        # Projected side of triangle
-        x_prime_test = centre_x_test + (x_vals_test[1:] - x_vals_test[:-1])
-        y_prime_test = centre_y_test + (y_vals_test[1:] - y_vals_test[:-1])
-        
-        # Lengths of each side of the triangle
-        r1_test = np.sqrt((centre_x_test - x_prime_test)**2 + (centre_y_test - y_prime_test)**2)
-        r2_test = np.sqrt((centre_x_test - x_mean_test)**2 + (centre_y_test - y_mean_test)**2)
-        r3_test = np.sqrt((x_mean_test - x_prime_test)**2 + (y_mean_test - y_prime_test)**2)
-        
-        pitch_angle_test = 90 - np.arccos((r1_test**2 + r2_test**2 - r3_test**2)/(2*r1_test*r2_test)) * 180/np.pi
-        print("Max pitch angle is "+str(np.nanmax(pitch_angle_test)))
-        
-        # Dummy plot to test
-        fig = plt.figure()
-        ax = fig.gca()
-        ax.plot(np.sqrt((x_mean_test-centre_x_test)**2 + (y_mean_test-centre_y_test)**2), abs(pitch_angle_test), 'rx')
-        ax.set_title("Arm "+str(i))
-        ax.set_xlabel("Radius")
-        ax.set_ylabel("Pitch Angle (°)")
-        plt.show()
         
     # Closing Open-CV windows and proceeding to analysis
     # cv2.destroyAllWindows()

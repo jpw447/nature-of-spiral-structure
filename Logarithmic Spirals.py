@@ -8,10 +8,14 @@ b = 1/np.tan(degrees*np.pi/180)
 N = 1000
 # Logarithmic Spiral
 theta = np.linspace(0, 2*np.pi, N)
-# r = a*np.exp(b*theta)
+r = a*np.exp(b*theta)
 
+amplitude = 0.01
+noise = amplitude*np.random.rand(N) * np.exp(b*theta)
+
+r += noise
 # Perfect Circle
-r = np.zeros(N) + 0.1
+# r = np.zeros(N) + 0.1
 
 # Origin
 centre_x, centre_y = 0,0
