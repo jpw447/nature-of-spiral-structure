@@ -70,7 +70,7 @@ if __name__ == "__main__":
             drawing = False
               
     # Loading jpg image for picking out galaxy centre
-    galaxy = cv2.imread("Images\\Pure Logarithmic Spiral.jpg")        
+    galaxy = cv2.imread("Images\\Perfect Circle.jpg")        
     print("Please pick out the galacitc centre. Only the first pixel will be taken.\nPress escape when you are done.\n")
     window_title = "Galaxy"
     cv2.namedWindow(window_title)
@@ -123,9 +123,9 @@ if __name__ == "__main__":
         ###### Pure Spiral Test only section ######
         ax_checker.plot(r_test, pitch_angle)
         ax_checker.axis('equal')
-        ax_checker.set_xlabel("Index")
-        ax_checker.set_ylabel("$r$")
-        ax_checker.set_title("Radius $r$ as a function of array index")
+        ax_checker.set_xlabel("$r$")
+        ax_checker.set_ylabel("$i$")
+        ax_checker.set_title("Pitch Angle $i$ as a function of radius $r$")
         #####################
         
         x_list, y_list = [], []

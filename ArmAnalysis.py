@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from astropy.io import fits
+import scipy.signal as sc
 
 def histogram_limiter(percentage, count, intensity):
     '''
@@ -131,7 +132,7 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
             drawing = False
               
     # Loading jpg image for picking out galaxy centre
-    galaxy = cv2.imread("Images\\Pure Logairthmic Spiral.jpg")        
+    galaxy = cv2.imread("Images\\ngc5247bB.jpg")        
     print("Please pick out the galacitc centre. Only the first pixel will be taken.\nPress escape when you are done.\n")
     window_title = "Galaxy"
     cv2.namedWindow(window_title)
@@ -144,42 +145,49 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
     print("Galactic centre was found at ("+str(centre_x)+","+str(centre_y)+")\n")
     x_list, y_list = [], []
     
+    fig_checker = plt.figure()
+    ax_checker = fig_checker.gca()
+    
     # Drawing and grabbing each spiral arm, depending on how many were specified
     for i in range(0, arm_count):
         print("Draw spiral arm "+str(i+1)+".\n Press escape when you are done.\n")
         cv2_show_image(window_title, galaxy)
-        arms_x[i] = np.array(x_list)
-        arms_y[i] = np.array(y_list)
-        x_list, y_list = [], []
-    
-    i = 0 # Dummy variable for testing
-    # Looping over each arm and calculating the pitch angle, converting to degrees
-    for x_vals, y_vals in zip(arms_x, arms_y):
-        i += 1
-        # Mean between each pair of values
+        # Converting lists to numpy arrays for calculations
+        x_list = np.array(x_list)
+        y_list = np.array(y_list)
+        # Centering arrays
+        x_list -= centre_x
+        y_list -= centre_y
+        
+        # Reflection of y-values
+        y_list = -y_list
+        
+        # Filtering data of noise and picking every 20th point for analysis
+        x_list = sc.savgol_filter(x_list, 53, 3)[::20]
+        y_list = sc.savgol_filter(y_list, 53, 3)[::20]
+        
+        x_vals, y_vals = x_list, y_list
+        
         x_mean = 0.5*(x_vals[1:] + x_vals[:-1])
         y_mean = 0.5*(y_vals[1:] + y_vals[:-1])
-        
-        # Projected side of triangle
+        r_test = np.sqrt(x_mean*x_mean + y_mean*y_mean)
         x_prime = centre_x + (x_vals[1:] - x_vals[:-1])
         y_prime = centre_y + (y_vals[1:] - y_vals[:-1])
-        
-        # Lengths of each side of the triangle
         r1 = np.sqrt((centre_x - x_prime)**2 + (centre_y - y_prime)**2)
         r2 = np.sqrt((centre_x - x_mean)**2 + (centre_y - y_mean)**2)
         r3 = np.sqrt((x_mean - x_prime)**2 + (y_mean - y_prime)**2)
         
         pitch_angle = 90 - np.arccos((r1**2 + r2**2 - r3**2)/(2*r1*r2)) * 180/np.pi
-        print("Max pitch angle is "+str(np.nanmax(pitch_angle)))
         
-        # Dummy plot to test
-        fig = plt.figure()
-        ax = fig.gca()
-        ax.plot(np.sqrt((x_mean-centre_x)**2 + (y_mean-centre_y)**2), abs(pitch_angle), 'rx')
-        ax.set_title("Arm "+str(i))
-        ax.set_xlabel("Radius")
-        ax.set_ylabel("Pitch Angle (°)")
-        plt.show()
+        ###### Pure Spiral Test only section ######
+        ax_checker.plot(r_test, pitch_angle)
+        ax_checker.axis('equal')
+        ax_checker.set_xlabel("$r$")
+        ax_checker.set_ylabel("$i$")
+        ax_checker.set_title("Pitch Angle $i$ as a function of radius $r$")
+        #####################
+        
+        x_list, y_list = [], []
         
     # Closing Open-CV windows and proceeding to analysis
     # cv2.destroyAllWindows()
