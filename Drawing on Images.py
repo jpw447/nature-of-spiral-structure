@@ -10,7 +10,7 @@ import numpy as np
   
 # img = cv2.imread("gull.jpg")
 # gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
+galaxy_name = "NGC 5054 CV2.jpg"
 galaxy = cv2.imread("Images\\ngc5054bB.jpg")
 ymax, xmax, _ = np.shape(galaxy)
   
@@ -49,6 +49,8 @@ while True:
       
     if cv2.waitKey(10) == 27:
         break
+    
+cv2.imwrite(galaxy_name, galaxy)
 
 fig = plt.figure(figsize=(8,8))
 ax = fig.gca()

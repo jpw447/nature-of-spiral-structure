@@ -23,7 +23,7 @@ r_filtered = sc.savgol_filter(r,53,3)[::interval]
 # r = np.zeros(N) + 0.1
 
 # Origin
-centre_x, centre_y = 0,0
+centre_x, centre_y = 0,1
 
 # Polar plot
 fig_polar = plt.figure()

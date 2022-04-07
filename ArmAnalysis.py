@@ -88,7 +88,10 @@ def cv2_show_image(title, image):
             break
     return
 
-def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):    
+def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005): 
+    # Removing band letter from galaxy name for display
+    galaxy_name = galaxy_name[:-1]
+    
     # Asks the user  to input number of spiral arms, with input control
     while True:
         arm_count = int(input("How many spiral arms are in the image? "))
@@ -111,9 +114,10 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
     drawing = False
       
     def draw(event, x, y, flags, param):
-          
+        # Global variables to grab them from outside function
         global ix, iy, drawing
           
+        # When mousebutton is clicked down, draw a circle and save its co-ordinates
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
             ix = x
@@ -121,23 +125,24 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
             cv2.circle(galaxy, (x,y), radius=0, color =(0, 0, 255), thickness =5)
             x_list.append(x)
             y_list.append(y)
-                  
+        
+        # When mouse is moved, draw a circle and save its co-ordinates
         elif event == cv2.EVENT_MOUSEMOVE:
             if drawing == True:
                 cv2.circle(galaxy, (x,y), radius=0, color =(0, 0, 255), thickness =5)
                 x_list.append(x)
                 y_list.append(y)
           
+        # When mouse button is lifted up, stop drawing
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
               
     # Loading jpg image for picking out galaxy centre
-    galaxy = cv2.imread("Images\\ngc5247bB.jpg")        
+    galaxy = cv2.imread("Images\\{}{}{}.jpg".format(galaxy_name, colour_band.lower(), colour_band))        
     print("Please pick out the galacitc centre. Only the first pixel will be taken.\nPress escape when you are done.\n")
     window_title = "Galaxy"
     cv2.namedWindow(window_title)
     cv2.setMouseCallback(window_title, draw)
-    
     cv2_show_image(window_title, galaxy)
     
     # Grabbing centre co-ordinates and resetting lists for use
@@ -145,8 +150,14 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
     print("Galactic centre was found at ("+str(centre_x)+","+str(centre_y)+")\n")
     x_list, y_list = [], []
     
-    fig_checker = plt.figure()
-    ax_checker = fig_checker.gca()
+    # Aspect ratio 21:9 for figure
+    width = 12
+    height = width*(9/21)
+    
+    # Creating figures and axes for plots of each pitch angle
+    fig_pa, ax_pa = plt.subplots(1, arm_count, figsize=(width,height))
+    fig_pa.suptitle("{} in {}-band".format(galaxy_name.upper(), colour_band), fontsize=20)
+    plt.subplots_adjust(wspace=0.2, top=0.85)
     
     # Drawing and grabbing each spiral arm, depending on how many were specified
     for i in range(0, arm_count):
@@ -166,31 +177,46 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
         x_list = sc.savgol_filter(x_list, 53, 3)[::20]
         y_list = sc.savgol_filter(y_list, 53, 3)[::20]
         
-        x_vals, y_vals = x_list, y_list
+        # Analysis as in the diary using geometric arguments
+        # Mean value between each pair of points
+        x_mean = 0.5*(x_list[1:] + x_list[:-1])
+        y_mean = 0.5*(y_list[1:] + y_list[:-1])
         
-        x_mean = 0.5*(x_vals[1:] + x_vals[:-1])
-        y_mean = 0.5*(y_vals[1:] + y_vals[:-1])
+        # Radius
         r_test = np.sqrt(x_mean*x_mean + y_mean*y_mean)
-        x_prime = centre_x + (x_vals[1:] - x_vals[:-1])
-        y_prime = centre_y + (y_vals[1:] - y_vals[:-1])
+        
+        # Triangle sides and pitch angle calculation in degrees
+        x_prime = centre_x + (x_list[1:] - x_list[:-1])
+        y_prime = centre_y + (y_list[1:] - y_list[:-1])
         r1 = np.sqrt((centre_x - x_prime)**2 + (centre_y - y_prime)**2)
         r2 = np.sqrt((centre_x - x_mean)**2 + (centre_y - y_mean)**2)
         r3 = np.sqrt((x_mean - x_prime)**2 + (y_mean - y_prime)**2)
         
         pitch_angle = 90 - np.arccos((r1**2 + r2**2 - r3**2)/(2*r1*r2)) * 180/np.pi
         
-        ###### Pure Spiral Test only section ######
-        ax_checker.plot(r_test, pitch_angle)
-        ax_checker.axis('equal')
-        ax_checker.set_xlabel("$r$")
-        ax_checker.set_ylabel("$i$")
-        ax_checker.set_title("Pitch Angle $i$ as a function of radius $r$")
-        #####################
+        ax_pa[i].plot(r_test, pitch_angle)
+        ax_pa[i].axis('equal')
+        ax_pa[i].set_xlabel("Radius (arbitrary units)", fontsize=14)
+        ax_pa[i].set_ylabel("Pitch Angle (°)", fontsize=14)
+        ax_pa[i].set_title(" Arm {}".format(i+1), fontsize=16)
         
+        # Resetting lists for other arms
         x_list, y_list = [], []
+    
+    # Saving th
+    while True:
+        save_check = input("Save plots and drawing? Y/N: ").upper()
+        if save_check == "Y":
+            plt.savefig("Figures/{}-Band/{} Plots".format(colour_band, galaxy_name), dpi=300)
+            cv2.imwrite("Figures/{}-Band/{} Drawing.jpg".format(colour_band, galaxy_name), galaxy)
+            break
+        elif save_check != "N":
+            print("Invalid input, please try again.")
+        else:
+            break
         
-    # Closing Open-CV windows and proceeding to analysis
-    # cv2.destroyAllWindows()
+    # Closing Open-CV windows
+    cv2.destroyAllWindows()
     print("Drawing complete!")
     
     return
