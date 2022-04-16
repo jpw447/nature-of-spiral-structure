@@ -88,9 +88,9 @@ def cv2_show_image(title, image):
             break
     return
 
-def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005): 
-    # Removing band letter from galaxy name for display
-    galaxy_name = galaxy_name[:-1]
+def arm_drawing(path, save_path, file_name, colour_band, percentage=0.005): 
+    # Removing band letters from galaxy name for display
+    galaxy_name = file_name[:-2]
     
     # Asks the user  to input number of spiral arms, with input control
     while True:
@@ -122,14 +122,14 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
             drawing = True
             ix = x
             iy = y            
-            cv2.circle(galaxy, (x,y), radius=0, color =(0, 0, 255), thickness =5)
+            cv2.circle(galaxy, (x,y), radius=0, color =(255, 0, 0), thickness =5)
             x_list.append(x)
             y_list.append(y)
         
         # When mouse is moved, draw a circle and save its co-ordinates
         elif event == cv2.EVENT_MOUSEMOVE:
             if drawing == True:
-                cv2.circle(galaxy, (x,y), radius=0, color =(0, 0, 255), thickness =5)
+                cv2.circle(galaxy, (x,y), radius=0, color =(255, 0, 0), thickness =5)
                 x_list.append(x)
                 y_list.append(y)
           
@@ -138,7 +138,8 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
             drawing = False
               
     # Loading jpg image for picking out galaxy centre
-    galaxy = cv2.imread("Images\\{}{}{}.jpg".format(galaxy_name, colour_band.lower(), colour_band))        
+    print("\n"+path+"\\{}\\{}.jpg".format(galaxy_name, file_name)+"\n")
+    galaxy = cv2.imread(path+"\\{}\\{}.jpg".format(galaxy_name, file_name))        
     print("Please pick out the galacitc centre. Only the first pixel will be taken.\nPress escape when you are done.\n")
     window_title = "Galaxy"
     cv2.namedWindow(window_title)
@@ -156,7 +157,7 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
     
     # Creating figures and axes for plots of each pitch angle
     fig_pa, ax_pa = plt.subplots(1, arm_count, figsize=(width,height))
-    fig_pa.suptitle("{} in {}-band".format(galaxy_name.upper(), colour_band), fontsize=20)
+    # fig_pa.suptitle("{} in {}-band".format(galaxy_name.upper(), colour_band), fontsize=20)
     plt.subplots_adjust(wspace=0.2, top=0.85)
     
     # Drawing and grabbing each spiral arm, depending on how many were specified
@@ -173,9 +174,9 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
         # Reflection of y-values
         y_list = -y_list
         
-        # Filtering data of noise and picking every 20th point for analysis
-        x_list = sc.savgol_filter(x_list, 53, 3)[::20]
-        y_list = sc.savgol_filter(y_list, 53, 3)[::20]
+        # Filtering data of noise and picking every 10th point for analysis
+        x_list = sc.savgol_filter(x_list, 53, 3)[::10]
+        y_list = sc.savgol_filter(y_list, 53, 3)[::10]
         
         # Analysis as in the diary using geometric arguments
         # Mean value between each pair of points
@@ -194,29 +195,42 @@ def arm_drawing(path, save_path, galaxy_name, colour_band, percentage=0.005):
         
         pitch_angle = 90 - np.arccos((r1**2 + r2**2 - r3**2)/(2*r1*r2)) * 180/np.pi
         
-        ax_pa[i].plot(r_test, pitch_angle)
+        # print("\n")
+        # print(pitch_angle)
+        # print("\n")
+        
+        ax_pa[i].plot(r_test, pitch_angle, 'b')
         ax_pa[i].axis('equal')
-        ax_pa[i].set_xlabel("Radius (arbitrary units)", fontsize=14)
-        ax_pa[i].set_ylabel("Pitch Angle (°)", fontsize=14)
-        ax_pa[i].set_title(" Arm {}".format(i+1), fontsize=16)
+        ax_pa[i].set_xlabel("Radius (pixels)", fontsize=15)
+        ax_pa[i].set_ylabel("Pitch Angle (°)", fontsize=15)
+        ax_pa[i].set_ylim(-90, 90)
+        
+        with open(save_path+"\\{}\\{}_arm_{}.txt".format(galaxy_name, file_name, i+1), 'w') as text_file:
+            for radius, angle in zip(r_test, pitch_angle):
+                print("{}\t{}".format(radius, angle), file=text_file)
         
         # Resetting lists for other arms
         x_list, y_list = [], []
     
-    # Saving th
+    # Saving the figures and drawing
     while True:
         save_check = input("Save plots and drawing? Y/N: ").upper()
+        
         if save_check == "Y":
-            plt.savefig("Figures/{}-Band/{} Plots".format(colour_band, galaxy_name), dpi=300)
-            cv2.imwrite("Figures/{}-Band/{} Drawing.jpg".format(colour_band, galaxy_name), galaxy)
+            plt.savefig(save_path+"\\{}\\{}_{}-band_plots.eps".format(galaxy_name, file_name, colour_band, colour_band))
+            plt.savefig(save_path+"\\{}\\{}_{}-band_plots.png".format(galaxy_name, file_name, colour_band), dpi=300)
+            cv2.imwrite(save_path+"\\{}\\{}_{}-band_drawing.png".format(galaxy_name, file_name, colour_band), galaxy)
             break
+        
         elif save_check != "N":
             print("Invalid input, please try again.")
+            
         else:
             break
         
-    # Closing Open-CV windows
+    # Closing Open-CV windows and Pyplot
     cv2.destroyAllWindows()
+    plt.close()
     print("Drawing complete!")
     
     return

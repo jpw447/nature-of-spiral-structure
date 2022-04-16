@@ -32,7 +32,7 @@ def draw_rectangle_with_drag(event, x, y, flags, param):
               
     elif event == cv2.EVENT_MOUSEMOVE:
         if drawing == True:
-            cv2.circle(galaxy, (x,y), radius=0, color =(0, 0, 255), thickness =5)
+            cv2.circle(galaxy, (x,y), radius=0, color =(255, 0, 0), thickness =5)
             x_list.append(x)
             y_list.append(y)
       

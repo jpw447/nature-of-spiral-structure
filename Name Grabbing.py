@@ -11,12 +11,12 @@ if __name__ == "__main__":
     # Path strings
     # laptop_path = "C:\\Users\\joepw\\Documents\\Year 3\\Nature of Spiral Structure"
     computer_path = "C:\\Users\\Joe\\Documents\\Uni\\Year 3\\Nature of Spiral Structure"
-    image_path = computer_path + "\\OSU\\data\\survey\ByFilter\\{}_band".format(band)
-    list_path = computer_path + "\\Galaxy Lists\\{}-band_galaxies.txt".format(band)
+    image_path = computer_path + "\\Good images"
+    list_path = computer_path + "\\Good List\\{}-band_galaxies.txt".format(band)
     
     # Retrieving full file names
-    files = os.listdir('OSU\data\survey\ByFilter\{}_band'.format(band))
-    # Removing '.fits' extension from each
+    files = os.listdir(image_path)
+    # Removing 'B.jpg' extension from each
     galaxies = [file[:-5] for file in files]
     
     # Writing the names to a .txt file
