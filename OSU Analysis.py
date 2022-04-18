@@ -9,7 +9,7 @@ and .txt name lists are stored.
 if __name__ == "__main__":
     band = input("Which colour band do you want to look at? ").upper()
     
-    galaxy = 'ngc3275' + band.lower() + band
+    galaxy = 'ngc7412' + band.lower() + band
     
     # Path strings
     # laptop_path = "C:\\Users\\joepw\\Documents\\Year 3\\Nature of Spiral Structure"
