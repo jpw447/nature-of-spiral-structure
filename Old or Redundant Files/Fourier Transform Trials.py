@@ -2,6 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 
+'''
+This file was used for testing Fourier methods on galaxy images.
+Unfortunately, it did not turn out useful and was not used in the final project.
+As long as an appropriate FITS file is provided with the correct path in
+line 91, the file will run and take some seconds to do so. 
+
+Running the second cell in the file may not work - if you would like to run 
+this file, it is recommended that you only run the first cell.
+
+This file is considered redundant and is kept only for a historical record.
+'''
+
 def image_display(axis, name, file_name, colour_min=1.7, colour_max=2.7, file_path=''):
     '''
     Loads a FITS file image and rescales it for visualisation using base 10 logarithm.
@@ -66,23 +78,24 @@ def image_reconstruction(axis, name, FFT, colour_min=1.7, colour_max=2.7):
     axis.set_title("Reconstructed Image of "+name)
     plt.show()
 
-# if __name__ == "__main__":
-galaxy = "NGC 5054"
-fig_fourier, ax_fourier = plt.subplots(1,3, figsize=(12,6))
-fig_fourier.suptitle("Fourier Transform and Reconstruction of "+galaxy, fontsize=20)
-plt.subplots_adjust(wspace=0.3)
-
-vmin, vmax = 1.7, 2.7   
-percentage = 0.1
-threshold = 0.7
-
-image = image_display(ax_fourier[0], galaxy, "ngc7412b.fits", vmin, vmax, "OSU\\data\\survey\\ByFilter\\B_band\\")
-
-fig = plt.figure()
-hist = plt.hist(image, bins=100)
+if __name__ == "__main__":
+    galaxy = "NGC 5054"
+    fig_fourier, ax_fourier = plt.subplots(1,3, figsize=(12,6))
+    fig_fourier.suptitle("Fourier Transform and Reconstruction of "+galaxy, fontsize=20)
+    plt.subplots_adjust(wspace=0.3)
+    
+    vmin, vmax = 1.7, 2.7   
+    percentage = 0.1
+    threshold = 0.7
+    
+    image = image_display(ax_fourier[0], galaxy, "ngc7412b.fits", vmin, vmax, "OSU\\data\\survey\\ByFilter\\B_band\\")
+    
+    fig = plt.figure()
+    hist = plt.hist(image, bins=100)
 #%%
 '''
-Cell containing Fourier transforms of images 
+Cell containing Fourier transforms of images . This was used for experimentation
+and should not be expected to work.
 '''
 FFT = fourier_transform(image)
 

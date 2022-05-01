@@ -89,6 +89,40 @@ def cv2_show_image(title, image):
     return
 
 def arm_drawing(path, save_path, file_name, colour_band, percentage=0.005): 
+    '''
+    Loads a jpg image and asks the user for how many spiral arms are in the image
+    before requesting they pick out the centre of the galaxy.
+    The user is then permitted to draw on the image before hitting "escape"
+    after each spiral arm, and then asked whether they would like the data
+    to be saved. If so, the trace and plots are saved to the specified
+    save_path as well as additional folders currently written into lines 
+    262-264.
+    
+    It is necessary to edit lines 179 and 262-264 to make this function work 
+    with wherever the jpg files are locally stored.
+    
+    If you draw on the image with fewer than 10 points, the code will throw 
+    an error, since it aims to retrieve every 10th point you have drawn.
+        
+    Parameters
+    ----------
+    path : string
+        Absolute path where the .fits files are stored. Must not end with \\.
+    save_path : string
+        Absolute path where to save the jpg images..
+    file_name : string
+        The name of the file containing the image without the extension, e.g.
+        'ngc2442b'
+    colour_band : float
+        Decimal form of percentage above which brightness is retained.
+    percentage : float
+        Decimal form of percentage above which brightness is retained. Default is 0.5%.
+
+    Returns
+    -------
+    None.
+    '''
+    
     # Removing band letters from galaxy name for display
     galaxy_name = file_name[:-2]
     
@@ -99,21 +133,24 @@ def arm_drawing(path, save_path, file_name, colour_band, percentage=0.005):
             print("Invalid input, please try again.")
         else:
             break
-    # Creating arrays to contain the co-ordinates of each arm
-    arms_x = np.empty(shape=(arm_count),dtype=object)
-    arms_y = arms_x
-    
-    # Function define for drawing with the mouse on the image. Has to be defined
-    # here or the code doesn't recognise the function.
-    # Initialising variables and lists
+
+    # Initialising variables and lists for drawing and analysis
     ix = -1
     iy = -1
     x_list = []
     y_list = []
-    global drawing
+    global drawing # Globalled twice or the code doesn't work. Not sure why
     drawing = False
       
     def draw(event, x, y, flags, param):
+        '''
+        Function defined for drawing with the mouse on the image. Has to be defined
+        here or the code doesn't recognise the function.
+        
+        Recognised an OpenCV event and grabs the x and y positions of the mouse.
+        Then draws a circle whenever the mouse is pressed down or held down
+        and moved. The co-ordinates are saved for analysis.
+        '''
         # Global variables to grab them from outside function
         global ix, iy, drawing
           
@@ -139,7 +176,10 @@ def arm_drawing(path, save_path, file_name, colour_band, percentage=0.005):
               
     # Loading jpg image for picking out galaxy centre
     print("\n"+path+"\\{}\\{}.jpg".format(galaxy_name, file_name)+"\n")
-    galaxy = cv2.imread(path+"\\{}\\{}.jpg".format(galaxy_name, file_name))        
+    galaxy = cv2.imread(path+"\\{}\\{}.jpg".format(galaxy_name, file_name))
+    
+    # Prompting the user to pick out the galactic centre and then creating 
+    # OpenCV display windows for the image
     print("Please pick out the galacitc centre. Only the first pixel will be taken.\nPress escape when you are done.\n")
     window_title = "Galaxy"
     cv2.namedWindow(window_title)
@@ -157,33 +197,36 @@ def arm_drawing(path, save_path, file_name, colour_band, percentage=0.005):
     
     # Creating figures and axes for plots of each pitch angle
     fig_pa, ax_pa = plt.subplots(1, arm_count, figsize=(width,height))
-    # fig_pa.suptitle("{} in {}-band".format(galaxy_name.upper(), colour_band), fontsize=20)
     plt.subplots_adjust(wspace=0.2, top=0.85)
     
     # Drawing and grabbing each spiral arm, depending on how many were specified
     for i in range(0, arm_count):
         print("Draw spiral arm "+str(i+1)+".\n Press escape when you are done.\n")
         cv2_show_image(window_title, galaxy)
+        
         # Converting lists to numpy arrays for calculations
         x_list = np.array(x_list)
         y_list = np.array(y_list)
-        # Centering arrays
+        
+        # Centering arrays by translating the origin to (0,0)
         x_list -= centre_x
         y_list -= centre_y
         
-        # Reflection of y-values
+        # Reflection of y-values since the OpenCV axis has y=0 at the
+        # top of the image, not the bottom, which is required for 
+        # calculation
         y_list = -y_list
         
         # Filtering data of noise and picking every 10th point for analysis
         x_list = sc.savgol_filter(x_list, 53, 3)[::10]
         y_list = sc.savgol_filter(y_list, 53, 3)[::10]
         
-        # Analysis as in the diary using geometric arguments
+        # Analysis as in the diary and report using geometric arguments
         # Mean value between each pair of points
         x_mean = 0.5*(x_list[1:] + x_list[:-1])
         y_mean = 0.5*(y_list[1:] + y_list[:-1])
         
-        # Radius
+        # Radius at all points
         r_test = np.sqrt(x_mean*x_mean + y_mean*y_mean)
         
         # Triangle sides and pitch angle calculation in degrees
@@ -193,11 +236,8 @@ def arm_drawing(path, save_path, file_name, colour_band, percentage=0.005):
         r2 = np.sqrt((centre_x - x_mean)**2 + (centre_y - y_mean)**2)
         r3 = np.sqrt((x_mean - x_prime)**2 + (y_mean - y_prime)**2)
         
+        # Final pitch angle calculation and plot
         pitch_angle = 90 - np.arccos((r1**2 + r2**2 - r3**2)/(2*r1*r2)) * 180/np.pi
-        
-        # print("\n")
-        # print(pitch_angle)
-        # print("\n")
         
         ax_pa[i].plot(r_test, pitch_angle, 'b')
         ax_pa[i].axis('equal')
@@ -205,6 +245,7 @@ def arm_drawing(path, save_path, file_name, colour_band, percentage=0.005):
         ax_pa[i].set_ylabel("Pitch Angle (°)", fontsize=15)
         ax_pa[i].set_ylim(-90, 90)
         
+        # Saving the data for plotting each waveband on the same plot later
         with open(save_path+"\\{}\\{}_arm_{}.txt".format(galaxy_name, file_name, i+1), 'w') as text_file:
             for radius, angle in zip(r_test, pitch_angle):
                 print("{}\t{}".format(radius, angle), file=text_file)
@@ -216,8 +257,9 @@ def arm_drawing(path, save_path, file_name, colour_band, percentage=0.005):
     while True:
         save_check = input("Save plots and drawing? Y/N: ").upper()
         
+        # NOTE: change these lines if you wish to trial the code with an image
         if save_check == "Y":
-            plt.savefig(save_path+"\\{}\\{}_{}-band_plots.eps".format(galaxy_name, file_name, colour_band, colour_band))
+            plt.savefig(save_path+"\\{}\\{}_{}-band_plots.eps".format(galaxy_name, file_name, colour_band))
             plt.savefig(save_path+"\\{}\\{}_{}-band_plots.png".format(galaxy_name, file_name, colour_band), dpi=300)
             cv2.imwrite(save_path+"\\{}\\{}_{}-band_drawing.png".format(galaxy_name, file_name, colour_band), galaxy)
             break
@@ -248,7 +290,7 @@ def image_parameters(path, galaxy_name, percentage):
     galaxy_name : string
         The name of the file without the extension, e.g. 'ngc5054b'.
     percentage : float
-        Decimal form of percentage above which brightness is retained. Default is 0.5%.
+        Decimal form of percentage above which brightness is retained.
 
     Returns
     -------
@@ -283,7 +325,8 @@ def image_parameters(path, galaxy_name, percentage):
 
 def image_display(path, save_path, galaxy_name, colour_band, percentage=0.005):
     '''
-    Loads a FITS file image and rescales it for visualisation using base 10 logarithm.
+    Loads a FITS file image and rescales it for visualisation using base 10 logarithm
+    as well as deprojection.
     Plots using plt.imshow from matplotlib and then saves the figure to the
     specified path.
     This function is for when you want to look at the image only, and perform
@@ -295,10 +338,10 @@ def image_display(path, save_path, galaxy_name, colour_band, percentage=0.005):
         Absolute path where the .fits files are stored. Must not end with \\.
     save_path : string
         Absolute path where to save the jpg images..
-    galaxy_name : TYPE
+    galaxy_name : string
         The name of the file without the extension, e.g. 'ngc5054b'.
-    colour_band : float
-        Decimal form of percentage above which brightness is retained.
+    colour_band : string
+        Specifies the colour band being analysed. Necessary for saving images
     percentage : float
         Decimal form of percentage above which brightness is retained. Default is 0.5%.
 
@@ -317,27 +360,19 @@ def image_display(path, save_path, galaxy_name, colour_band, percentage=0.005):
          brightness histogram, and save a jpg to the save_path directory as
          "ngc5054bB.jpg".
     '''
-    '''
-    This first name-grabbing section will later need updating to filtering through
-    a list of filenames provided to it for each colour band
-    ''' 
     # Grabs logarithmic image and minimum and maximum brightness for image display
     log_image, vmin, vmax = image_parameters(path, galaxy_name, percentage)
     
     fig_image = plt.figure(figsize=(10,10))
     ax_image = fig_image.gca()
     
-    '''
-    TEMPORARY: displaying the log image instead of deprojected image
-    '''
     # Replaces log_image with deprojected image and displays it
     depro_image = deprojection(log_image)
     ax_image.imshow(depro_image, cmap='gray', vmin=vmin, vmax=vmax)
-    # ax_image.imshow(log_image, cmap='gray', vmin=vmin, vmax=vmax)
     
     # Removing labels for a clean display, then saving the image
     ax_image.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False) 
     ax_image.set_title("{} in {}-Band".format(galaxy_name, colour_band), fontsize=24)
     plt.grid(False)
-    # plt.savefig(save_path+"\\{}{}.jpg".format(galaxy_name,colour_band))
+    plt.savefig(save_path+"\\{}{}.jpg".format(galaxy_name,colour_band))
     return

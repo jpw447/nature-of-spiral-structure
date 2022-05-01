@@ -2,6 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 
+'''
+This file was used to develop the code used to create histograms of FITS
+files and then adjust them so that they were not overly bright. The final
+code can be found in ArmAnalysis, and this file was not used for the final
+project.
+
+
+This file is considered redundant and is kept only for a historical record.
+'''
+
 name = "ic5052b"
 band = "B"
 computer_path = "C:\\Users\\Joe\\Documents\\Uni\\Year 3\\Nature of Spiral Structure"

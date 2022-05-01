@@ -4,6 +4,10 @@ This script is used to retrieve the filenames from a particular colour band
 and then store the names without the file extension in a .txt file.
 
 The paths can be changed according to where the files are stored.
+If run, the file will throw errors unless the paths are changed and there
+is a folder containing all of the images in the format:
+    
+    ngc2442b.jpg
 '''
 if __name__ == "__main__":
     band = input("Which band do you want to check: ").upper()

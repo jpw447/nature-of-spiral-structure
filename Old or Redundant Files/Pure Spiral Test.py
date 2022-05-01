@@ -3,6 +3,15 @@ import matplotlib.pyplot as plt
 import cv2
 import scipy.signal as sc
 
+'''
+This file contains several portions from old copies of ArmAnalysis.py. 
+It was used for development of the ArmAnalysis code.
+It will throw an error in its current state and not be able to find the correct image.
+The paths specified will have to be changed.
+
+This file is considered redundant and is kept only for a historical record.
+'''
+
 def cv2_show_image(title, image):
     '''
     Function used to display images with Open-CV, since this is done repeatedly
@@ -70,7 +79,7 @@ if __name__ == "__main__":
             drawing = False
               
     # Loading jpg image for picking out galaxy centre
-    galaxy = cv2.imread("Images\\Perfect Circle.jpg")        
+    galaxy = cv2.imread("Images\\Pure Logarithmic Spiral.jpg")        
     print("Please pick out the galacitc centre. Only the first pixel will be taken.\nPress escape when you are done.\n")
     window_title = "Galaxy"
     cv2.namedWindow(window_title)
@@ -84,7 +93,7 @@ if __name__ == "__main__":
     x_list, y_list = [], []
         
     ###### Pure Spiral Test only section ######
-    fig_checker = plt.figure()
+    fig_checker = plt.figure(figsize=(10,8))
     ax_checker = fig_checker.gca()
     #####################
     
@@ -125,11 +134,12 @@ if __name__ == "__main__":
         ax_checker.axis('equal')
         ax_checker.set_xlabel("$r$")
         ax_checker.set_ylabel("$i$")
-        ax_checker.set_title("Pitch Angle $i$ as a function of radius $r$")
         #####################
         
         x_list, y_list = [], []
         
     # Closing Open-CV windows and proceeding to analysis
     # cv2.destroyAllWindows()
+    plt.savefig("C:\\Users\\Joe\\Documents\\Uni\\Year 3\\Nature of Spiral Structure\\Good Images\\hand_drawn_spiral_plot.png", dpi=300)
+    cv2.imwrite("C:\\Users\\Joe\\Documents\\Uni\\Year 3\\Nature of Spiral Structure\\Good Images\\hand_drawn_spiral.png", galaxy)
     print("Drawing complete!")
