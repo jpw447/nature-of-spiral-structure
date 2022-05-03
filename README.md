@@ -21,3 +21,6 @@ A file used to import and utilise ArmAnalysis to convert images from FITS to JPE
 
 ## Redundant Files
 Old files used for development that did not produce anything relevant to the final project, and whose files were only used for testing and practice code.
+
+## Images
+Images used in testing, such as a logarithmic spiral and NGC 5054 in B-band.
